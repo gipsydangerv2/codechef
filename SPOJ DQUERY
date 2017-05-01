@@ -1,0 +1,88 @@
+#include<bits/stdc++.h>
+using namespace std;
+pair<pair<int,int>,int> queries[1000000+1];
+int blockSize;
+int currentAnswer = 0;
+int cnt[1000000+1];
+int answers[1000000+1];
+	bool compare(const pair<pair<int,int>,int> &query1, const pair<pair<int,int>,int> &query2){
+		// left : query1.first.first
+		// right: query1.first.second
+		int blockNo1 = query1.first.first / blockSize;
+		int blockNo2 = query2.first.first / blockSize;
+		if(blockNo1 != blockNo2)
+			return blockNo1 < blockNo2; 	// return the one with lowest block no if both belong to different blocks
+		return query1.first.second < query2.first.second ;  // return the one with lower value of right if both queries belong to the same block.
+	}
+void addValue(int num){
+	if(cnt[num] == 0){
+		currentAnswer ++;
+	}
+	cnt[num]++;
+	//cout <<" addValue ans:"<<currentAnswer<< " " << num<<endl;	
+}	
+void removeValue(int num){
+	if(cnt[num] == 1){
+		currentAnswer --;
+	}
+	cnt[num] --;
+	//cout << " removeValue ans:"<<currentAnswer<< " " << num << endl;
+}
+int main(){
+	cin.sync_with_stdio(false);
+	int n,num,query;
+	cin >> n;
+	vector<int> vec;
+	blockSize = sqrt(n);
+	for(int i = 0;i<n;i++){
+		cin >> num;
+		vec.push_back(num);
+		//cout <<"vec[i]" << vec[i]<< endl;
+	}
+	cin >> query;
+	for(int i = 0;i<query;i++){
+		cin >> queries[i].first.first >> queries[i].first.second;
+		queries[i].second = i;
+	}
+	sort(queries,queries+query,compare);
+	int moLeft = -1, moRight = -1;
+	/*for(int i=0;i<vec.size();i++){
+		cout << i << ":" << vec[i] << endl;
+	}*/
+	
+	for(int i=0;i<query;i++){
+		int left = queries[i].first.first - 1;
+		int right = queries[i].first.second -1;
+		//cout <<"------------------------------("<<left<<","<<right<<")--------------------------------"<< endl;
+		while(moRight < right ){
+			moRight ++;
+			addValue(vec[moRight]);
+			//cout << "left:" <<moLeft <<" right:"<<moRight<<endl;
+		}
+		while(moLeft < left ){
+			if(moLeft == -1){
+				
+			}
+			else
+				removeValue(vec[moLeft]);
+			moLeft++;
+			//cout << "left:" <<moLeft <<" right:"<<moRight<<endl;
+		}
+		while(moLeft > left){
+			moLeft --;
+			addValue(vec[moLeft]);
+			//cout << "left:" <<moLeft <<" right:"<<moRight<<endl;
+		}
+		
+		while(moRight > right){
+			removeValue(vec[moRight]);
+			moRight --;
+			//cout << "left:" <<moLeft <<" right:"<<moRight<<endl;
+		}
+		answers[queries[i].second] = currentAnswer;
+	}
+	for(int i=0;i<query;i++){
+		cout <<answers[i]<<"\n";
+	}
+	return 0;
+} 
